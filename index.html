@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Play "Mound" Ball - Online Multiplayer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: 
+                linear-gradient(90deg, transparent 0%, transparent 20%, rgba(0,0,0,0.1) 20%, rgba(0,0,0,0.1) 21%, transparent 21%, transparent 40%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.1) 41%, transparent 41%, transparent 60%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.1) 61%, transparent 61%, transparent 80%, rgba(0,0,0,0.1) 80%, rgba(0,0,0,0.1) 81%, transparent 81%),
+                linear-gradient(0deg, transparent 0%, transparent 20%, rgba(0,0,0,0.05) 20%, rgba(0,0,0,0.05) 21%, transparent 21%, transparent 40%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 41%, transparent 41%, transparent 60%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.05) 61%, transparent 61%, transparent 80%, rgba(0,0,0,0.05) 80%, rgba(0,0,0,0.05) 81%, transparent 81%),
+                repeating-linear-gradient(45deg, #1a5d3a 0px, #1a5d3a 8px, #156d42 8px, #156d42 16px),
+                linear-gradient(180deg, #0d2b56 0%, #0d2b56 15%, #1a5d3a 15%, #1a5d3a 85%, #2d1810 85%, #2d1810 100%);
+            background-size: 100% 100%, 100% 100%, 20px 20px, 100% 100%;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35vh;
+            background: linear-gradient(180deg, #87CEEB 0%, #7EC8E3 100%);
+            border-bottom: 4px solid #bd3039;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 0;
+        }
+        
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35vh;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 11;
+        }
+        
+        .baseball-decoration {
+            position: absolute;
+            font-size: 28px;
+            z-index: 10;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .baseball-1 { top: 10%; left: 10%; animation-delay: 0s; }
+        .baseball-2 { top: 15%; left: 25%; animation-delay: 0.5s; }
+        .baseball-3 { top: 12%; left: 75%; animation-delay: 1s; }
+        .baseball-4 { top: 18%; left: 85%; animation-delay: 1.5s; }
+        .baseball-5 { top: 70%; left: 8%; animation-delay: 2s; }
+        .baseball-6 { top: 75%; left: 20%; animation-delay: 2.5s; }
+        .baseball-7 { top: 72%; left: 78%; animation-delay: 0.3s; }
+        .baseball-8 { top: 77%; left: 88%; animation-delay: 0.8s; }
+        .baseball-9 { top: 45%; left: 5%; animation-delay: 1.2s; }
+        .baseball-10 { top: 48%; left: 92%; animation-delay: 1.8s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: 
+                repeating-linear-gradient(90deg,
+                    #2d1810 0px, #2d1810 40px,
+                    #3d2418 40px, #3d2418 42px,
+                    #2d1810 42px, #2d1810 82px,
+                    #3d2418 82px, #3d2418 84px
+                ),
+                linear-gradient(180deg, #3d2418 0%, #2d1810 100%);
+            border-top: 3px solid #1a0f08;
+            box-shadow: 0 -4px 8px rgba(0,0,0,0.4);
+            z-index: 0;
+        }
+
+        .version-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            font-weight: 600;
+            z-index: 1001;
+            font-family: monospace;
+        }
+
+        .copyright {
+            position: fixed;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .copyright-symbol {
+            display: inline-block;
+            font-size: 0.8em;
+            vertical-align: super;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            padding-top: calc(35vh + 20px);
+        }
+
+        #lobbyScreen .btn {
+            padding: 10px 20px;
+            font-size: 0.95em;
+            margin-top: 8px;
+        }
+        
+        #lobbyScreen .card {
+            max-width: 450px;
+            padding: 16px;
+        }
+        
+        #lobbyScreen h2 {
+            font-size: 1.3em;
+            margin-bottom: 8px;
+        }
+        
+        #lobbyScreen p {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        #createGameScreen .card {
+            max-width: 350px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        #homeScreen .card {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #0d2b56;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header .icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+            font-family: 'Alfa Slab One', serif;
+            letter-spacing: 0.05em;
+            color: #0d2b56;
+            text-shadow: 
+                2px 2px 0px #bd3039,
+                4px 4px 0px rgba(0,0,0,0.2),
+                1px 1px 0px #c8102e,
+                3px 3px 0px #a02028;
+            transform: skewY(-2deg);
+        }
+        
+        .header .icon {
+            font-size: 35px;
+            margin-bottom: 5px;
+        }
+        
+        .header .tagline {
+            font-size: 1.1em;
+        }
+
+        .header .tagline {
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #bd3039 0%, #c8102e 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(189, 48, 57, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        #homeScreen .form-group {
+            margin-bottom: 15px;
+        }
+        
+        #homeScreen input,
+        #homeScreen select {
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        #homeScreen label {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        #userName {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0d2b56;
+        }
+
+        .player-list {
+            list-style: none;
+        }
+
+        .player-item {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .player-item.gm {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        }
+
+        .player-item.you {
+            border: 2px solid #0d2b56;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .player-icon {
+            font-size: 20px;
+        }
+
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .score-card.active {
+            border-color: #56ab2f;
+            background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%);
+        }
+
+        .score-card.you {
+            border-color: #0d2b56;
+            border-width: 3px;
+        }
+
+        .score-card .name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .score-card .score {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .score-card .score.positive {
+            color: #56ab2f;
+        }
+
+        .score-card .score.negative {
+            color: #eb3349;
+        }
+
+        .pot-display {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .pot-display .pot-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .pot-display .pot-amount {
+            font-size: 3em;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .active-player {
+            background: linear-gradient(135deg, #e6ffed 0%, #b7f5d1 100%);
+            border: 3px solid #56ab2f;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .active-player .label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .active-player .name {
+            font-size: 2em;
+            font-weight: bold;
+            color: #56ab2f;
+        }
+
+        .result-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .result-btn {
+            padding: 40px 20px;
+            font-size: 1.2em;
+            border-radius: 15px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-btn .icon {
+            font-size: 2em;
+        }
+
+        .result-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .result-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-btn.on-mound {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+        }
+
+        .result-btn.off-mound {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .inning-display {
+            background: linear-gradient(135deg, #0d2b56 0%, #1a3a6b 100%);
+            padding: 15px 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: white;
+            font-size: 1.3em;
+            border: 3px solid #bd3039;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item.won {
+            background: linear-gradient(135deg, #e6ffed 0%, #d4f5e1 100%);
+        }
+
+        .winner-card {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border: 3px solid #f39c12;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .winner-card .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .winner-card .name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .winner-card .final-score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #56ab2f;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-item .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #bd3039;
+        }
+
+        .stat-item .label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .share-box {
+            background: #f8f9fa;
+            border: 2px dashed #0d2b56;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        
+        .share-box h3 {
+            font-size: 0.95em;
+            margin-bottom: 6px;
+        }
+        
+        .share-box p {
+            font-size: 0.85em;
+            margin: 4px 0;
+        }
+
+        .share-box .game-code {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #0d2b56;
+            letter-spacing: 0.1em;
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .share-box .share-link {
+            background: white;
+            padding: 6px 8px;
+            border-radius: 6px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.75em;
+            margin: 6px 0;
+            color: #0d2b56;
+        }
+
+        .waiting-message {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .gm-controls {
+            background: #e6f3ff;
+            border: 2px solid #0d2b56;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            .result-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .scoreboard {
+                grid-template-columns: 1fr;
+            }
+
+            .share-box .game-code {
+                font-size: 2em;
+            }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            margin-top: 0;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-top: 6px;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-badge.online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <!-- Version Info -->
+    <div class="version-info">v1.3.0</div>
+    
+    <!-- Fixed Header with Baseballs -->
+    <div class="fixed-header">
+        <div class="baseball-decoration baseball-1">⚾</div>
+        <div class="baseball-decoration baseball-2">⚾</div>
+        <div class="baseball-decoration baseball-3">⚾</div>
+        <div class="baseball-decoration baseball-4">⚾</div>
+        <div class="baseball-decoration baseball-5">⚾</div>
+        <div class="baseball-decoration baseball-6">⚾</div>
+        <div class="baseball-decoration baseball-7">⚾</div>
+        <div class="baseball-decoration baseball-8">⚾</div>
+        <div class="baseball-decoration baseball-9">⚾</div>
+        <div class="baseball-decoration baseball-10">⚾</div>
+        
+        <div class="header">
+            <div class="icon">⚾</div>
+            <h1>LET'S PLAY "MOUND" BALL</h1>
+            <p class="tagline">Online Multiplayer Edition</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Home Screen -->
+        <div id="homeScreen">
+            <div class="card">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="userName" placeholder="Enter your name" />
+                </div>
+                <button class="btn" onclick="showCreateGame()">Create New Game</button>
+                <button class="btn btn-secondary" onclick="showJoinGame()">Join Existing Game</button>
+            </div>
+        </div>
+
+        <!-- Join Game Screen -->
+        <div id="joinGameScreen" class="hidden">
+            <div class="card">
+                <h2>Join Game</h2>
+                <div class="form-group">
+                    <label>Game Code</label>
+                    <input type="text" id="joinGameCode" placeholder="Enter 6-digit code" maxlength="6" style="text-transform: uppercase; letter-spacing: 0.1em;" />
+                </div>
+                <button class="btn" onclick="joinGame()">Join Game</button>
+                <button class="btn btn-secondary" onclick="showHome()">Back</button>
+            </div>
+        </div>
+
+        <!-- Create Game Screen -->
+        <div id="createGameScreen" class="hidden">
+            <div class="card">
+                <h2>Create New Game</h2>
+                <div class="form-group">
+                    <label>Game Name</label>
+                    <input type="text" id="gameName" placeholder="Sunday Showdown" maxlength="20" />
+                </div>
+                <div class="form-group">
+                    <label>Ante per Half-Inning (Dollars)</label>
+                    <input type="number" id="ante" value="1" min="1" max="100" step="1" style="max-width: 100px;" />
+                </div>
+                <div class="form-group">
+                    <label>Starting Inning</label>
+                    <select id="startingInning">
+                        <option value="1">1st Inning</option>
+                        <option value="2">2nd Inning</option>
+                        <option value="3">3rd Inning</option>
+                        <option value="4">4th Inning</option>
+                        <option value="5">5th Inning</option>
+                        <option value="6">6th Inning</option>
+                        <option value="7">7th Inning</option>
+                        <option value="8">8th Inning</option>
+                        <option value="9">9th Inning</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="requireEqualTurns" checked style="width: auto; margin: 0;">
+                        <span>Require Equal Turns (recommended for fair betting)</span>
+                    </label>
+                    <p style="font-size: 0.85em; color: #666; margin-top: 5px; margin-left: 30px;">
+                        If unchecked, game follows baseball walkoff rules and may end early
+                    </p>
+                </div>
+                <button class="btn" onclick="createGame()">Create Game</button>
+                <button class="btn btn-secondary" onclick="showHome()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Game Lobby Screen -->
+        <div id="lobbyScreen" class="hidden">
+            <div class="card">
+                <h2 id="lobbyGameName"></h2>
+                <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                    Ante: <strong id="lobbyAnte"></strong> USD | Starting Inning: <strong id="lobbyInning"></strong>
+                </p>
+                
+                <!-- Share Section (GM Only) -->
+                <div class="share-box" id="shareSection" style="display: none;">
+                    <h3 style="margin-bottom: 10px;">Invite Players</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Share this code with friends:</p>
+                    <div class="game-code" id="gameCodeDisplay"></div>
+                    <button class="copy-btn" onclick="copyGameCode()">📋 Copy Code</button>
+                    <p style="margin-top: 15px; font-size: 0.9em; color: #666;">Or share this link:</p>
+                    <div class="share-link" id="shareLinkDisplay"></div>
+                    <button class="copy-btn" onclick="copyShareLink()">📋 Copy Link</button>
+                </div>
+                
+                <h3 style="margin: 12px 0 8px 0; font-size: 1em;">Players (<span id="playerCount">0</span>)</h3>
+                <ul class="player-list" id="playerList"></ul>
+                
+                <div id="gmControls" style="margin-top: 20px;">
+                    <button class="btn btn-success" onclick="startGame()" id="startGameBtn">Start Game</button>
+                </div>
+                <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+            </div>
+        </div>
+
+        <!-- Game Play Screen -->
+        <div id="gamePlayScreen" class="hidden">
+            <div class="card">
+                <h2 id="gameTitle"></h2>
+                <div class="inning-display" id="inningDisplay"></div>
+                
+                <div class="scoreboard" id="scoreboard"></div>
+                
+                <div class="active-player">
+                    <div class="label">ON THE MOUND</div>
+                    <div class="name" id="activePlayerName"></div>
+                </div>
+                
+                <div class="pot-display">
+                    <div class="pot-label">CURRENT POT</div>
+                    <div class="pot-amount" id="potAmount">0 USD</div>
+                </div>
+                
+                <!-- GM Controls -->
+                <div id="gmGameControls" class="hidden">
+                    <p style="text-align: center; font-weight: 600; margin: 20px 0;">
+                        Where did the ball land?
+                    </p>
+                    
+                    <div class="result-buttons">
+                        <button class="result-btn on-mound" onclick="recordResult('onMound')">
+                            <span class="icon">✓</span>
+                            <span>ON MOUND</span>
+                        </button>
+                        <button class="result-btn off-mound" onclick="recordResult('offMound')">
+                            <span class="icon">✗</span>
+                            <span>OFF MOUND</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Non-GM Message -->
+                <div id="waitingForGM" class="hidden">
+                    <div class="waiting-message">
+                        ⏳ Waiting for Game Manager to enter result...
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="showHistory()">History</button>
+                    <button class="btn btn-danger" onclick="endGameNow()">End Game Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game History Screen -->
+        <div id="historyScreen" class="hidden">
+            <div class="card">
+                <h2>Game History</h2>
+                <div id="historyList"></div>
+                <button class="btn" onclick="hideHistory()">Back to Game</button>
+            </div>
+        </div>
+
+        <!-- Game Completed Screen -->
+        <div id="completedScreen" class="hidden">
+            <div class="card">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 4em;">🏁</div>
+                    <h1>Game Complete!</h1>
+                    <h3 id="completedGameName" style="color: #666;"></h3>
+                </div>
+                
+                <div id="winnersSection"></div>
+                <div id="losersSection"></div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="value" id="statInnings">0</div>
+                        <div class="label">Innings</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="statPlayers">0</div>
+                        <div class="label">Players</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="statAnte">0</div>
+                        <div class="label">Ante</div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="newGame()">New Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copyright Footer -->
+    <div class="copyright">
+        <span class="copyright-symbol">©</span> 2026 Ktchup Studios
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        // ============================================================================
+        // FIREBASE CONFIGURATION
+        // ============================================================================
+        
+        // IMPORTANT: Replace this with YOUR Firebase config
+        // Get it from: Firebase Console → Project Settings → Your apps → Web app
+        const firebaseConfig = {
+            apiKey: "AIzaSyASkZ7kRqEmTOWXZB8zeN0jO_UURh1PI-4",
+            authDomain: "moundball-2b9fa.firebaseapp.com",
+            databaseURL: "https://moundball-2b9fa-default-rtdb.firebaseio.com",
+            projectId: "moundball-2b9fa",
+            storageBucket: "moundball-2b9fa.firebasestorage.app",
+            messagingSenderId: "389956375394",
+            appId: "1:389956375394:web:792a8881a4a578e034523b"
+        };
+
+        // Initialize Firebase
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            console.log("Firebase initialized successfully!");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            alert("Firebase setup required! See FIREBASE_SETUP.md for instructions.");
+        }
+
+        // ============================================================================
+        // GAME STATE
+        // ============================================================================
+        
+        let currentUser = null;
+        let currentGameId = null;
+        let currentGameCode = null;
+        let gameListener = null;
+        let isGameManager = false;
+
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+        
+        function generateGameCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function ordinalSuffix(num) {
+            const ones = num % 10;
+            const tens = Math.floor(num / 10) % 10;
+            if (tens === 1) return 'th';
+            if (ones === 1) return 'st';
+            if (ones === 2) return 'nd';
+            if (ones === 3) return 'rd';
+            return 'th';
+        }
+
+        function getInningDisplay(inning, isTop) {
+            const half = isTop ? 'Top' : 'Bottom';
+            return `${half} of the ${inning}${ordinalSuffix(inning)}`;
+        }
+
+        function getShareLink() {
+            const baseUrl = window.location.href.split('?')[0];
+            return `${baseUrl}?join=${currentGameCode}`;
+        }
+
+        // ============================================================================
+        // SCREEN NAVIGATION
+        // ============================================================================
+        
+        function showHome() {
+            stopListeningToGame();
+            currentGameId = null;
+            currentGameCode = null;
+            isGameManager = false;
+            
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('homeScreen').classList.remove('hidden');
+        }
+
+        function showCreateGame() {
+            const userName = document.getElementById('userName').value.trim();
+            if (!userName) {
+                alert('Please enter your name first!');
+                return;
+            }
+            currentUser = { id: generateId(), username: userName };
+            
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('createGameScreen').classList.remove('hidden');
+        }
+
+        function showJoinGame() {
+            const userName = document.getElementById('userName').value.trim();
+            if (!userName) {
+                alert('Please enter your name first!');
+                return;
+            }
+            currentUser = { id: generateId(), username: userName };
+            
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('joinGameScreen').classList.remove('hidden');
+            
+            // Check for join code in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const joinCode = urlParams.get('join');
+            if (joinCode) {
+                document.getElementById('joinGameCode').value = joinCode.toUpperCase();
+            }
+        }
+
+        function showLobby() {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('lobbyScreen').classList.remove('hidden');
+        }
+
+        function showGamePlay() {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('gamePlayScreen').classList.remove('hidden');
+        }
+
+        function showHistory() {
+            document.getElementById('historyScreen').classList.remove('hidden');
+        }
+
+        function hideHistory() {
+            document.getElementById('historyScreen').classList.add('hidden');
+        }
+
+        function showCompleted() {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('completedScreen').classList.remove('hidden');
+        }
+
+        // ============================================================================
+        // FIREBASE OPERATIONS
+        // ============================================================================
+        
+        async function createGame() {
+            const name = document.getElementById('gameName').value.trim();
+            const ante = parseInt(document.getElementById('ante').value);
+            const startingInning = parseInt(document.getElementById('startingInning').value);
+            const requireEqualTurns = document.getElementById('requireEqualTurns').checked;
+
+            if (!name) {
+                alert('Please enter a game name');
+                return;
+            }
+
+            const gameCode = generateGameCode();
+            const gameId = generateId();
+            
+            const gmPlayer = {
+                id: currentUser.id,
+                username: currentUser.username,
+                currentScore: 0,
+                turnsPlayed: 0,
+                potsWon: 0,
+                totalWinnings: 0,
+                potWinBreakdown: []
+            };
+
+            const game = {
+                id: gameId,
+                code: gameCode,
+                name: name,
+                gameManagerId: currentUser.id,
+                antePerHalfInning: ante,
+                startingInning: startingInning,
+                requireEqualTurns: requireEqualTurns,
+                createdAt: Date.now(),
+                status: 'lobby',
+                players: { [currentUser.id]: gmPlayer },
+                currentInning: startingInning,
+                isTopOfInning: false,
+                pitchingOrder: [],
+                currentPlayerIndex: 0,
+                pot: 0,
+                halfInningResults: {}
+            };
+
+            try {
+                // Save game
+                await db.ref(`games/${gameId}`).set(game);
+                
+                // Save code mapping
+                await db.ref(`gameCodes/${gameCode}`).set(gameId);
+                
+                currentGameId = gameId;
+                currentGameCode = gameCode;
+                isGameManager = true;
+                
+                // Start listening to game updates
+                listenToGame(gameId);
+                
+                // Clear form
+                document.getElementById('gameName').value = '';
+                document.getElementById('ante').value = '10';
+                document.getElementById('startingInning').value = '1';
+                
+                showLobby();
+            } catch (error) {
+                console.error("Error creating game:", error);
+                alert("Failed to create game. Please check your Firebase setup.");
+            }
+        }
+
+        async function joinGame() {
+            const code = document.getElementById('joinGameCode').value.trim().toUpperCase();
+            
+            if (!code || code.length !== 6) {
+                alert('Please enter a valid 6-digit game code');
+                return;
+            }
+
+            try {
+                // Look up game ID from code
+                const codeSnapshot = await db.ref(`gameCodes/${code}`).once('value');
+                const gameId = codeSnapshot.val();
+                
+                if (!gameId) {
+                    alert('Game not found! Please check the code.');
+                    return;
+                }
+
+                // Get game data
+                const gameSnapshot = await db.ref(`games/${gameId}`).once('value');
+                const game = gameSnapshot.val();
+                
+                if (!game) {
+                    alert('Game not found!');
+                    return;
+                }
+
+                if (game.status !== 'lobby' && game.status !== 'inProgress') {
+                    alert('This game has ended!');
+                    return;
+                }
+
+                // Check if player with same name already exists
+                const existingPlayer = Object.values(game.players || {}).find(
+                    p => p.username.toLowerCase() === currentUser.username.toLowerCase()
+                );
+
+                if (existingPlayer) {
+                    const isRejoin = confirm(
+                        `A player named "${currentUser.username}" is already in this game.\n\n` +
+                        'Are you rejoining after disconnecting?\n\n' +
+                        'Click OK to rejoin as this player\n' +
+                        'Click Cancel to join as a different player'
+                    );
+
+                    if (isRejoin) {
+                        // Rejoin as existing player
+                        currentUser.id = existingPlayer.id;
+                        currentGameId = gameId;
+                        currentGameCode = code;
+                        isGameManager = (existingPlayer.id === game.gameManagerId);
+                        
+                        listenToGame(gameId);
+                        document.getElementById('joinGameCode').value = '';
+                        
+                        if (game.status === 'lobby') {
+                            showLobby();
+                        } else {
+                            showGamePlay();
+                        }
+                        return;
+                    } else {
+                        alert('Please use a different name to join as a new player.');
+                        return;
+                    }
+                }
+
+                // Add as new player
+                const newPlayer = {
+                    id: currentUser.id,
+                    username: currentUser.username,
+                    currentScore: 0,
+                    turnsPlayed: 0,
+                    potsWon: 0,
+                    totalWinnings: 0,
+                    potWinBreakdown: []
+                };
+
+                if (game.status === 'inProgress') {
+                    alert('This game has already started. You cannot join a game in progress.');
+                    return;
+                }
+
+                await db.ref(`games/${gameId}/players/${currentUser.id}`).set(newPlayer);
+                
+                currentGameId = gameId;
+                currentGameCode = code;
+                isGameManager = false;
+                
+                // Start listening to game updates
+                listenToGame(gameId);
+                
+                document.getElementById('joinGameCode').value = '';
+                
+                showLobby();
+            } catch (error) {
+                console.error("Error joining game:", error);
+                alert("Failed to join game. Please try again.");
+            }
+        }
+
+        function listenToGame(gameId) {
+            // Stop previous listener if exists
+            stopListeningToGame();
+            
+            // Listen to game updates
+            gameListener = db.ref(`games/${gameId}`).on('value', (snapshot) => {
+                const game = snapshot.val();
+                
+                if (!game) {
+                    alert('Game no longer exists!');
+                    showHome();
+                    return;
+                }
+
+                updateUI(game);
+            });
+        }
+
+        function stopListeningToGame() {
+            if (gameListener && currentGameId) {
+                db.ref(`games/${currentGameId}`).off('value', gameListener);
+                gameListener = null;
+            }
+        }
+
+        function updateUI(game) {
+            if (game.status === 'lobby') {
+                updateLobbyUI(game);
+            } else if (game.status === 'inProgress') {
+                updateGamePlayUI(game);
+            } else if (game.status === 'completed') {
+                updateCompletedUI(game);
+            }
+        }
+
+        function updateLobbyUI(game) {
+            // Make sure we're on the lobby screen
+            if (!document.getElementById('lobbyScreen').classList.contains('hidden')) {
+                document.getElementById('lobbyGameName').textContent = game.name;
+                document.getElementById('lobbyAnte').textContent = game.antePerHalfInning;
+                document.getElementById('lobbyInning').textContent = game.startingInning;
+                
+                // Update game code display (only for GM)
+                if (isGameManager) {
+                    document.getElementById('shareSection').style.display = 'block';
+                    document.getElementById('gameCodeDisplay').textContent = game.code;
+                    document.getElementById('shareLinkDisplay').textContent = getShareLink();
+                } else {
+                    document.getElementById('shareSection').style.display = 'none';
+                }
+                
+                // Update player list
+                const playerList = document.getElementById('playerList');
+                const players = Object.values(game.players || {});
+                
+                document.getElementById('playerCount').textContent = players.length;
+                
+                playerList.innerHTML = '';
+                players.forEach(player => {
+                    const li = document.createElement('li');
+                    const isGM = player.id === game.gameManagerId;
+                    const isYou = player.id === currentUser.id;
+                    
+                    li.className = 'player-item';
+                    if (isGM) li.classList.add('gm');
+                    if (isYou) li.classList.add('you');
+                    
+                    li.innerHTML = `
+                        <div class="player-info">
+                            <span class="player-icon">${isGM ? '👑' : '👤'}</span>
+                            <div>
+                                <strong>${player.username}${isYou ? ' (You)' : ''}</strong>
+                                ${isGM ? '<div style="font-size: 0.8em; color: #666;">Game Manager</div>' : ''}
+                            </div>
+                        </div>
+                    `;
+                    playerList.appendChild(li);
+                });
+
+                // Show/hide GM controls
+                const gmControls = document.getElementById('gmControls');
+                const startBtn = document.getElementById('startGameBtn');
+                
+                if (isGameManager) {
+                    gmControls.style.display = 'block';
+                    startBtn.disabled = players.length < 2;
+                } else {
+                    gmControls.style.display = 'none';
+                }
+            }
+        }
+
+        async function startGame() {
+            if (!isGameManager) return;
+
+            const gameSnapshot = await db.ref(`games/${currentGameId}`).once('value');
+            const game = gameSnapshot.val();
+            const players = Object.values(game.players);
+
+            if (players.length < 2) {
+                alert('Need at least 2 players to start!');
+                return;
+            }
+
+            // Randomize pitching order
+            const pitchingOrder = players.map(p => p.id).sort(() => Math.random() - 0.5);
+            const pot = game.antePerHalfInning * players.length;
+
+            // Update each player's score (initial ante)
+            const updates = {};
+            players.forEach(player => {
+                updates[`games/${currentGameId}/players/${player.id}/currentScore`] = -game.antePerHalfInning;
+            });
+
+            updates[`games/${currentGameId}/status`] = 'inProgress';
+            updates[`games/${currentGameId}/pitchingOrder`] = pitchingOrder;
+            updates[`games/${currentGameId}/pot`] = pot;
+
+            try {
+                await db.ref().update(updates);
+                showGamePlay();
+            } catch (error) {
+                console.error("Error starting game:", error);
+                alert("Failed to start game. Please try again.");
+            }
+        }
+
+        function updateGamePlayUI(game) {
+            // Make sure we're on the game play screen
+            if (document.getElementById('gamePlayScreen').classList.contains('hidden')) {
+                showGamePlay();
+            }
+
+            document.getElementById('gameTitle').textContent = game.name;
+            document.getElementById('inningDisplay').textContent = getInningDisplay(game.currentInning, game.isTopOfInning);
+            
+            const players = Object.values(game.players);
+            const activePlayerId = game.pitchingOrder[game.currentPlayerIndex];
+            const activePlayer = players.find(p => p.id === activePlayerId);
+            
+            document.getElementById('activePlayerName').textContent = activePlayer ? activePlayer.username : '';
+            document.getElementById('potAmount').textContent = `${game.pot} USD`;
+
+            // Update scoreboard
+            const scoreboard = document.getElementById('scoreboard');
+            scoreboard.innerHTML = '';
+
+            players.forEach(player => {
+                const isActive = player.id === activePlayerId;
+                const isYou = player.id === currentUser.id;
+                
+                const card = document.createElement('div');
+                card.className = 'score-card';
+                if (isActive) card.classList.add('active');
+                if (isYou) card.classList.add('you');
+                
+                card.innerHTML = `
+                    <div class="name">${player.username}${isYou ? ' (You)' : ''}</div>
+                    <div class="score ${player.currentScore >= 0 ? 'positive' : 'negative'}">${player.currentScore >= 0 ? '+' : ''}${player.currentScore}</div>
+                    <div style="font-size: 0.9em; color: #666;">
+                        🏆 ${player.potsWon} pots
+                    </div>
+                `;
+                scoreboard.appendChild(card);
+            });
+
+            // Show GM controls or waiting message
+            if (isGameManager) {
+                document.getElementById('gmGameControls').classList.remove('hidden');
+                document.getElementById('waitingForGM').classList.add('hidden');
+            } else {
+                document.getElementById('gmGameControls').classList.add('hidden');
+                document.getElementById('waitingForGM').classList.remove('hidden');
+            }
+
+            // Update history
+            updateHistoryUI(game);
+        }
+
+        async function recordResult(location) {
+            if (!isGameManager) return;
+
+            const gameSnapshot = await db.ref(`games/${currentGameId}`).once('value');
+            const game = gameSnapshot.val();
+            const players = Object.values(game.players);
+            
+            const activePlayerId = game.pitchingOrder[game.currentPlayerIndex];
+            const ballLocation = location === 'onMound' ? 'onMound' : 'offMound';
+
+            // Create result record
+            const resultId = generateId();
+            const result = {
+                id: resultId,
+                gameId: game.id,
+                inning: game.currentInning,
+                isTop: game.isTopOfInning,
+                activePlayerId: activePlayerId,
+                ballLocation: ballLocation,
+                potAtStart: game.pot,
+                potWon: ballLocation === 'onMound' ? game.pot : null,
+                timestamp: Date.now()
+            };
+
+            const updates = {};
+            
+            // Save result
+            updates[`games/${currentGameId}/halfInningResults/${resultId}`] = result;
+
+            // Process result - ANTES FIRST, then process win/loss
+            // Everyone antes at the START of this turn (pot grows)
+            players.forEach(player => {
+                updates[`games/${currentGameId}/players/${player.id}/currentScore`] = 
+                    game.players[player.id].currentScore - game.antePerHalfInning;
+            });
+            
+            const potWithAntes = game.pot + (game.antePerHalfInning * players.length);
+            
+            if (ballLocation === 'onMound') {
+                // WINNER! Gets the pot (which now includes everyone's antes)
+                const winAmount = potWithAntes;
+                
+                const currentPotWins = game.players[activePlayerId].potWinBreakdown || [];
+                currentPotWins.push(winAmount);
+                
+                // Add winnings to winner's score (they already paid ante above)
+                updates[`games/${currentGameId}/players/${activePlayerId}/currentScore`] = 
+                    updates[`games/${currentGameId}/players/${activePlayerId}/currentScore`] + winAmount;
+                updates[`games/${currentGameId}/players/${activePlayerId}/potsWon`] = 
+                    game.players[activePlayerId].potsWon + 1;
+                updates[`games/${currentGameId}/players/${activePlayerId}/totalWinnings`] = 
+                    game.players[activePlayerId].totalWinnings + winAmount;
+                updates[`games/${currentGameId}/players/${activePlayerId}/potWinBreakdown`] = 
+                    currentPotWins;
+                updates[`games/${currentGameId}/players/${activePlayerId}/turnsPlayed`] = 
+                    game.players[activePlayerId].turnsPlayed + 1;
+
+                // Pot becomes 0 (winner took it all)
+                updates[`games/${currentGameId}/pot`] = 0;
+            } else {
+                // LOSER - Pot grows (from the antes we just collected)
+                updates[`games/${currentGameId}/players/${activePlayerId}/turnsPlayed`] = 
+                    game.players[activePlayerId].turnsPlayed + 1;
+                updates[`games/${currentGameId}/pot`] = potWithAntes;
+            }
+
+            // Check if game should end BEFORE advancing inning
+            // This prevents collecting an extra ante for a turn that won't be played
+            if (shouldGameEnd(game, players)) {
+                updates[`games/${currentGameId}/status`] = 'completed';
+                
+                try {
+                    await db.ref().update(updates);
+                } catch (error) {
+                    console.error("Error recording result:", error);
+                    alert("Failed to record result. Please try again.");
+                }
+                return; // Exit early, don't advance inning
+            }
+
+            // Advance to next player/inning
+            const nextPlayerIndex = (game.currentPlayerIndex + 1) % game.pitchingOrder.length;
+            updates[`games/${currentGameId}/currentPlayerIndex`] = nextPlayerIndex;
+
+            if (game.isTopOfInning) {
+                updates[`games/${currentGameId}/isTopOfInning`] = false;
+            } else {
+                updates[`games/${currentGameId}/isTopOfInning`] = true;
+                updates[`games/${currentGameId}/currentInning`] = game.currentInning + 1;
+            }
+
+            try {
+                await db.ref().update(updates);
+            } catch (error) {
+                console.error("Error recording result:", error);
+                alert("Failed to record result. Please try again.");
+            }
+        }
+
+        function getPotWinningsBreakdown(player) {
+            if (!player.potsWon || player.potsWon === 0) {
+                return '0 pots won';
+            }
+            
+            const breakdown = player.potWinBreakdown || [];
+            
+            if (breakdown.length === 0) {
+                // Fallback if breakdown not tracked
+                return `${player.potsWon} pot${player.potsWon > 1 ? 's' : ''} won • ${player.totalWinnings} USD total`;
+            }
+            
+            if (breakdown.length === 1) {
+                return `1 pot won for $${breakdown[0]}`;
+            }
+            
+            // Multiple pots - show each one
+            const potsList = breakdown.map(amount => `$${amount}`).join(' + ');
+            return `${breakdown.length} pots won (${potsList} = $${player.totalWinnings} total)`;
+        }
+
+        function shouldGameEnd(game, players, maxInnings = 9) {
+            // If requireEqualTurns is disabled, check if we can continue
+            if (!game.requireEqualTurns) {
+                // Just check if we've run out of innings
+                const remainingHalfInnings = (maxInnings - game.currentInning) * 2;
+                const adjustedRemaining = game.isTopOfInning ? remainingHalfInnings : remainingHalfInnings - 1;
+                return adjustedRemaining < 0; // Only end if completely out of innings
+            }
+            
+            // Original logic: require equal turns
+            const minTurns = Math.min(...players.map(p => p.turnsPlayed));
+            const maxTurns = Math.max(...players.map(p => p.turnsPlayed));
+
+            if (minTurns !== maxTurns) return false;
+
+            const remainingHalfInnings = (maxInnings - game.currentInning) * 2;
+            const adjustedRemaining = game.isTopOfInning ? remainingHalfInnings : remainingHalfInnings - 1;
+
+            return adjustedRemaining < players.length;
+        }
+
+        function updateHistoryUI(game) {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            const results = Object.values(game.halfInningResults || {});
+            
+            if (results.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No results yet</p>';
+                return;
+            }
+
+            results.reverse().forEach(result => {
+                const player = game.players[result.activePlayerId];
+                const div = document.createElement('div');
+                div.className = result.ballLocation === 'onMound' ? 'history-item won' : 'history-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${player ? player.username : 'Unknown'}</strong>
+                        <div style="font-size: 0.9em; color: #666;">
+                            ${getInningDisplay(result.inning, result.isTop)}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600; color: ${result.ballLocation === 'onMound' ? '#56ab2f' : '#eb3349'};">
+                            ${result.ballLocation === 'onMound' ? '✓ ON MOUND' : '✗ OFF MOUND'}
+                        </div>
+                        ${result.potWon ? `<div style="font-size: 0.9em; color: #f39c12;">Won ${result.potWon} USD</div>` : ''}
+                    </div>
+                `;
+                historyList.appendChild(div);
+            });
+        }
+
+        function updateCompletedUI(game) {
+            // Make sure we're on the completed screen
+            if (document.getElementById('completedScreen').classList.contains('hidden')) {
+                showCompleted();
+            }
+
+            document.getElementById('completedGameName').textContent = game.name;
+
+            const players = Object.values(game.players);
+            const winners = players.filter(p => p.currentScore > 0).sort((a, b) => b.currentScore - a.currentScore);
+            const losers = players.filter(p => p.currentScore <= 0).sort((a, b) => b.currentScore - a.currentScore);
+
+            const winnersSection = document.getElementById('winnersSection');
+            winnersSection.innerHTML = '';
+
+            if (winners.length > 0) {
+                winnersSection.innerHTML = '<h2 style="text-align: center; margin-bottom: 20px;">🏆 WINNERS 🏆</h2>';
+                winners.forEach(player => {
+                    const card = document.createElement('div');
+                    card.className = 'winner-card';
+                    card.innerHTML = `
+                        <div class="icon">⭐</div>
+                        <div class="name">${player.username}${player.id === currentUser.id ? ' (You!)' : ''}</div>
+                        <div class="final-score">+${player.currentScore} USD</div>
+                        <div style="margin-top: 10px; color: #666;">
+                            ${getPotWinningsBreakdown(player)}
+                        </div>
+                    `;
+                    winnersSection.appendChild(card);
+                });
+            }
+
+            const losersSection = document.getElementById('losersSection');
+            losersSection.innerHTML = '';
+
+            if (losers.length > 0) {
+                losersSection.innerHTML = '<h3 style="margin: 20px 0; text-align: center;">Final Standings</h3>';
+                losers.forEach(player => {
+                    const div = document.createElement('div');
+                    div.className = 'player-item';
+                    div.innerHTML = `
+                        <div class="player-info">
+                            <span class="player-icon">👤</span>
+                            <div>
+                                <strong>${player.username}${player.id === currentUser.id ? ' (You)' : ''}</strong>
+                                <div style="font-size: 0.8em; color: #666;">${getPotWinningsBreakdown(player)}</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #eb3349;">
+                            ${player.currentScore} USD
+                        </div>
+                    `;
+                    losersSection.appendChild(div);
+                });
+            }
+
+            document.getElementById('statInnings').textContent = game.currentInning - 1;
+            document.getElementById('statPlayers').textContent = players.length;
+            document.getElementById('statAnte').textContent = game.antePerHalfInning;
+        }
+
+        async function endGameNow() {
+            if (!isGameManager) {
+                alert('Only the Game Manager can end the game.');
+                return;
+            }
+
+            const confirmEnd = confirm(
+                'End the game now?\n\n' +
+                'Final scores will be calculated based on current standings.\n' +
+                'This action cannot be undone.'
+            );
+
+            if (!confirmEnd) return;
+
+            try {
+                // Just end the game - don't refund the pot
+                // The pot represents antes that were already deducted from scores
+                await db.ref(`games/${currentGameId}/status`).set('completed');
+            } catch (error) {
+                console.error("Error ending game:", error);
+                alert("Failed to end game. Please try again.");
+            }
+        }
+
+        async function leaveGame() {
+            if (!currentGameId) return;
+
+            const confirmLeave = confirm('Are you sure you want to leave the game?');
+            if (!confirmLeave) return;
+
+            try {
+                // Remove player from game
+                await db.ref(`games/${currentGameId}/players/${currentUser.id}`).remove();
+                
+                // If GM is leaving and game is in lobby, delete the game
+                const gameSnapshot = await db.ref(`games/${currentGameId}`).once('value');
+                const game = gameSnapshot.val();
+                
+                if (game && isGameManager && game.status === 'lobby') {
+                    await db.ref(`games/${currentGameId}`).remove();
+                    await db.ref(`gameCodes/${currentGameCode}`).remove();
+                }
+                
+                showHome();
+            } catch (error) {
+                console.error("Error leaving game:", error);
+                alert("Failed to leave game. Please try again.");
+            }
+        }
+
+        function newGame() {
+            // Reset form to defaults
+            document.getElementById('gameName').value = '';
+            document.getElementById('ante').value = '1';
+            document.getElementById('startingInning').value = '1';
+            document.getElementById('requireEqualTurns').checked = true;
+            
+            showHome();
+        }
+
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+
+        function copyGameCode() {
+            const code = document.getElementById('gameCodeDisplay').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Game code copied to clipboard!');
+            });
+        }
+
+        function copyShareLink() {
+            const link = document.getElementById('shareLinkDisplay').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Share link copied to clipboard!');
+            });
+        }
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        // Check for join code in URL on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const joinCode = urlParams.get('join');
+            
+            if (joinCode) {
+                // Auto-show join screen if there's a code in the URL
+                setTimeout(() => {
+                    const userName = document.getElementById('userName').value.trim();
+                    if (!userName) {
+                        alert('Please enter your name to join the game!');
+                    }
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
